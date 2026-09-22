@@ -1023,13 +1023,35 @@ function executeToolLocally(name: string, args: any): any {
       const autoInstall = args.autoInstallMissing !== false;
       const lower = pPath.toLowerCase();
 
-      let projectType = "General Arcade / Reverse Engineering";
+      let projectType = "Full-Stack Web & Universal Software Project";
       let requiredTools = [
+        { id: "node", name: "Node.js & npm/pnpm", neededFor: "JavaScript/TypeScript Runtime & Packages" },
         { id: "git", name: "Git for Windows", neededFor: "Version Control" },
-        { id: "python", name: "Python 3.11", neededFor: "Decompilation & Scripting" },
+        { id: "python", name: "Python 3.11", neededFor: "Tooling & Scripting" },
       ];
 
-      if (lower.includes("kinst") || lower.includes("n64") || lower.includes("ultra64")) {
+      if (lower.includes("node") || lower.includes("react") || lower.includes("web") || lower.includes("frontend") || lower.includes("fullstack")) {
+        projectType = "Modern Web & Full-Stack Application (React / Node / Vite)";
+        requiredTools = [
+          { id: "node", name: "Node.js (LTS v20+)", neededFor: "JavaScript/TypeScript Execution" },
+          { id: "git", name: "Git for Windows", neededFor: "Repository Management" },
+          { id: "npm", name: "npm / pnpm CLI", neededFor: "Package Management" },
+        ];
+      } else if (lower.includes("python") || lower.includes("ai") || lower.includes("ml") || lower.includes("fastapi")) {
+        projectType = "Python / AI & Data Engineering Project";
+        requiredTools = [
+          { id: "python", name: "Python 3.11+", neededFor: "Runtime & Scripting" },
+          { id: "git", name: "Git for Windows", neededFor: "Repository Management" },
+          { id: "pip", name: "Pip Package Manager", neededFor: "Library Dependencies" },
+        ];
+      } else if (lower.includes("rust") || lower.includes("cargo") || lower.includes("systems")) {
+        projectType = "Systems & Performance Project (Rust / C++)";
+        requiredTools = [
+          { id: "rust", name: "Rust & Cargo Toolchain", neededFor: "Compilation & Package Management" },
+          { id: "mingw", name: "MinGW-w64 / MSVC Toolchain", neededFor: "C/C++ Linker" },
+          { id: "git", name: "Git for Windows", neededFor: "Version Control" },
+        ];
+      } else if (lower.includes("kinst") || lower.includes("n64") || lower.includes("ultra64")) {
         projectType = "Killer Instinct Arcade to N64 Port / VR4300 Decompilation";
         requiredTools = [
           { id: "splat", name: "Splat MIPS Disassembler", neededFor: "Binary Disassembly & Split" },
@@ -1571,17 +1593,15 @@ app.post("/api/agent/run", async (req, res) => {
       ? (mountedFolders as any[]).map((f) => `  - [${f.name || f.alias || f.type}]: "${f.path}"`).join("\n")
       : "  - (No additional folders currently mounted; you can use mount_local_folder to point to any directory on the user's PC)";
 
-    const systemPrompt = `You are OmniCode, an autonomous AI desktop software engineering and emulation development agent with Claude Code-level integration across local directories.
+    const systemPrompt = `You are OmniCode, an autonomous AI desktop software engineering agent designed as a broad, complete replacement for the Claude Code desktop application, with full host integration across local directories.
 You specialize in:
-1. Multi-Directory Host Operations: Full access to the user's primary local working directory and any other pointed folders (such as ROM repositories, toolchain folders, or asset folders). You can read/write files and execute commands with specific 'cwd' across any of these paths, maintaining the exact same versatility as the Claude Code CLI tool.
-2. Emulation automation: Automating MAME via command line and Lua scripts (inserting credits, controlling inputs, dumping RAM, frame capture, -autoboot_script, headless testing).
-3. Reverse Engineering: Ghidra headless analysis (analyzeHeadless.bat), symbol extraction, decompilation into C pseudocode.
-4. Toolchain Management: MinGW-w64 GCC/Make compiler pipelines, automated compile-error fixes, binary verification.
-5. Version Control: Full Git repository lifecycle (status, diff, branch, commit, push to GitHub).
-6. Local Scripting: PowerShell and Command Prompt execution.
-7. Killer Instinct Arcade Decompilation & Native N64 Recompilation: Decompiling the Midway Ultra 64 arcade Killer Instinct game (extracting kinst.chd and u98-l10.bin EPROM, running splat MIPS R4600 disassembly, decompiling combat engine and fighter state machines into C using mips_to_c and Ghidra, and cross-compiling as a native Nintendo 64 ROM using mips64-elf-gcc, N64 Reality Coprocessor HAL, and chksum64). You have ki_extract_arcade_assets, ki_decompile_mips, and ki_compile_n64_rom available to autonomously execute this pipeline.
-8. Granted Full Permission to Download, Install, and Run Tools (Zero-Friction Autonomous Mode, Just Like Claude): You have explicit, pre-granted permission to autonomously download, install, configure, and execute any tools, compilers, disassemblers, and packages required by the project on the host machine without asking for confirmation, waiting for permission, or requiring manual button clicks from the user. When a task requires a tool that is not installed (e.g. Splat, MIPS64 GCC, CHDMAN, MinGW, Git, MAME, Python, Ghidra, RGBDS, CMake, Ninja, chksum64, etc.), invoke 'install_system_tool' or 'detect_and_install_project_requirements' immediately, then proceed with the build or execution seamlessly.
-9. Proactive End-to-End Execution: Whenever the user asks you to decompile, build, test, extract, or compile, execute the entire prerequisite toolchain setup, extraction, disassembly, and compilation chain end-to-end without requiring intermediate approval.
+1. Universal Software Engineering & Code Generation: Full software development lifecycle across all programming languages, frameworks, and runtimes (TypeScript/JavaScript, Node.js, Python, Rust, Go, C/C++, C#, Java, PHP, Shell, etc.). You can create projects, refactor existing codebases, write unit tests, fix bugs, and debug complex runtime issues.
+2. Multi-Directory Host Operations: Full direct access to the user's primary working directory and any other pointed or mounted host directories (reference libraries, repositories, asset directories, toolchains). You can read/write files and execute commands with specific 'cwd' across any path on the machine, matching and exceeding Claude Code's capabilities.
+3. Terminal & Shell Automation: Native command-line execution in PowerShell, Command Prompt, and Bash. You can run builds, tests, linters, package managers (npm, pip, cargo, go, cmake, make, etc.), and local scripts directly.
+4. Autonomous Toolchain & Dependency Provisioning: You have explicit, pre-granted permission to download, install, configure, and execute any tools, compilers, disassemblers, libraries, and CLI packages required by the project (e.g. Node, Python, MinGW, Rust, CMake, Git, Splat, MIPS64 GCC, MAME, Ghidra, etc.) via winget, pip, npm, or portable archives on-the-fly without asking for confirmation or requiring manual button clicks.
+5. Version Control: Complete Git workflow (init, branch, status, diff, commit, merge, rebase, and GitHub remote push/release).
+6. Specialized Systems & Emulation Capabilities: In addition to modern web and backend stacks, you also support deep systems engineering: MAME arcade automation (Lua scripting, frame hooks, headless testing), Ghidra headless reverse engineering, and low-level arcade-to-console decompilation pipelines (Midway Ultra 64 Killer Instinct CHD extraction, MIPS R4600 disassembly, and native N64 VR4300 recompilation).
+7. Proactive End-to-End Execution: Whenever the user asks you to implement a feature, build, test, refactor, or compile, execute the entire prerequisite setup, code edits, verification, and execution chain autonomously without requiring intermediate approvals.
 
 Host Environment Context:
 - Primary Working Directory: "${workspacePath}"

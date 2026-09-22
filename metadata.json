@@ -1,6 +1,6 @@
 {
   "name": "OmniCode: Autonomous Emulation Agent",
-  "description": "Autonomous desktop coding agent with Gemini sign-in, Windows app launcher, setup dialogs, settings window, MAME/Ghidra/MinGW toolchains, and Killer Instinct arcade decompilation to native N64 ROM.",
+  "description": "Autonomous desktop coding agent and Claude Code alternative with full multi-directory host operations, terminal execution, dynamic toolchain installation, and specialized arcade decompilation pipelines.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -196,7 +196,13 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
   const handleResolveProjectTools = async (profileKey: string, autoInstall: boolean = false) => {
     setProjectResolveLoading(true);
     try {
-      const pathToScan = profileKey === 'kinst_n64' 
+      const pathToScan = profileKey === 'web_fullstack'
+        ? 'C:\\dev\\web-fullstack-app'
+        : profileKey === 'python_ai'
+        ? 'C:\\dev\\python-ai-pipeline'
+        : profileKey === 'systems_rust'
+        ? 'C:\\dev\\systems-rust-app'
+        : profileKey === 'kinst_n64' 
         ? 'C:\\dev\\kinst_n64' 
         : profileKey === 'mame_arcade' 
         ? 'C:\\dev\\mame-arcade' 
@@ -381,6 +387,9 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                         }}
                         className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:border-blue-500"
                       >
+                        <option value="web_fullstack">Modern Full-Stack (React / TypeScript / Node / Vite)</option>
+                        <option value="python_ai">Python / AI &amp; Data Engineering (FastAPI, PyTorch)</option>
+                        <option value="systems_rust">Systems &amp; Performance (Rust / Cargo / C++)</option>
                         <option value="kinst_n64">Killer Instinct Arcade → N64 Port (VR4300 / MIPS)</option>
                         <option value="mame_arcade">MAME Arcade Automation &amp; Driver Dev</option>
                         <option value="gameboy_z80">Game Boy / Z80 Assembly Decompilation</option>
