@@ -1,0 +1,34 @@
+{
+  "appId": "com.omnicode.desktop",
+  "productName": "OmniCode Desktop Agent",
+  "directories": {
+    "output": "dist-installer"
+  },
+  "files": [
+    "dist/**/*",
+    "electron-main.cjs",
+    "preload.cjs",
+    "package.json",
+    "public/**/*"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "artifactName": "OmniCode-Setup-${version}-x64.exe"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "runAfterFinish": true,
+    "installerIcon": "public/assets/icon.png",
+    "uninstallerIcon": "public/assets/icon.png"
+  }
+}
