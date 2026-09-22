@@ -35,6 +35,9 @@ async function pushAndRelease() {
     console.log(`Repository created successfully: ${createData.html_url}`);
   } else if (createStatus === 422) {
     console.log('Repository already exists on GitHub, continuing...');
+  } else if (createStatus === 403) {
+    console.log('[Notice] The configured GitHub Fine-Grained Personal Access Token (PAT) does not have account-level permission to create brand-new repositories via the REST API.');
+    console.log(`[Action Needed] Please create the empty repository '${repo}' at https://github.com/new under user '${owner}'. Ensure the token has access to it, and re-run this script to complete the push and release!`);
   } else {
     console.log(`Repository creation returned status ${createStatus}:`, createData);
   }

@@ -1234,6 +1234,9 @@ app.post("/api/github/publish", async (req, res) => {
       addLog(`Repository created successfully: https://github.com/${targetAccount}/${repoName}`);
     } else if (createRes.status === 422) {
       addLog(`Repository '${targetAccount}/${repoName}' already exists on GitHub. Proceeding to push codebase...`);
+    } else if (createRes.status === 403) {
+      addLog(`Notice: Your GitHub token is a Fine-Grained Personal Access Token (PAT) without account-level permission to create new repositories via API.`);
+      addLog(`If you create an empty repository named '${repoName}' at https://github.com/new and include it in your token's repository access list, OmniCode will push and release to it immediately.`);
     } else {
       const errText = await createRes.text();
       addLog(`Notice on repo creation: ${errText}`);
@@ -1248,7 +1251,7 @@ app.post("/api/github/publish", async (req, res) => {
       execSync("git push -u origin main --force", { stdio: "pipe" });
       addLog(`Successfully pushed 42 codebase files to branch 'main' at https://github.com/${targetAccount}/${repoName}`);
     } catch (gitErr: any) {
-      addLog(`Git CLI push notice: ${gitErr.message}`);
+      addLog(`Git push notice: ${gitErr.message}`);
     }
 
     // 3. Create GitHub Release
