@@ -54,6 +54,10 @@ async function pushAndRelease() {
     if (err.stdout) console.log('stdout:', err.stdout.toString());
     if (err.stderr) console.error('stderr:', err.stderr.toString());
     throw err;
+  } finally {
+    try {
+      execSync(`git remote set-url origin https://github.com/${owner}/${repo}.git`);
+    } catch (_) {}
   }
 
   console.log('[3/4] Creating Release v1.0.0 on GitHub...');
