@@ -1,48 +1,60 @@
-// Windows x64 Single Installer Generator Script
+// Windows x64 Native Installer & Launcher Generator
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-console.log('[OmniCode Installer] Initializing Single Windows x64 Installer Build...');
+console.log('[OmniCode Installer] Initializing Native Windows x64 Installer Build...');
 
 const distDir = path.join(rootDir, 'dist');
 const distInstallerDir = path.join(rootDir, 'dist-installer');
+const srcNativeDir = path.join(rootDir, 'src-native');
 
 if (!fs.existsSync(distInstallerDir)) {
   fs.mkdirSync(distInstallerDir, { recursive: true });
 }
 
-// Check build artifacts
+// 1. Check build artifacts
 const indexHtml = path.join(distDir, 'index.html');
 const serverCjs = path.join(distDir, 'server.cjs');
 
-if (!fs.existsSync(indexHtml)) {
-  console.error('[Error] dist/index.html is missing. Please run `npm run build` first.');
+if (!fs.existsSync(indexHtml) || !fs.existsSync(serverCjs)) {
+  console.error('[Error] dist/index.html or dist/server.cjs is missing. Run `npm run build` first.');
   process.exit(1);
 }
 
-const installerExeName = 'OmniCode-Setup-1.0.0-x64.exe';
-const installerPath = path.join(distInstallerDir, installerExeName);
+// 2. Compile native Windows x64 launcher OmniCode.exe
+const launcherSrc = path.join(srcNativeDir, 'launcher.c');
+const launcherExe = path.join(distInstallerDir, 'OmniCode.exe');
 
-// Create manifest & installer metadata
+console.log('[1/4] Compiling native Windows x64 launcher (OmniCode.exe) via x86_64-w64-mingw32-gcc...');
+try {
+  execSync(`x86_64-w64-mingw32-gcc -O2 -mwindows "${launcherSrc}" -o "${launcherExe}"`, { stdio: 'inherit' });
+  console.log(`[OK] Compiled OmniCode.exe (${(fs.statSync(launcherExe).size / 1024).toFixed(1)} KB)`);
+} catch (err) {
+  console.error('[Error] Failed to compile native launcher:', err);
+  process.exit(1);
+}
+
+// 3. Prepare batch scripts and manifest
 const installerManifest = {
   appName: 'OmniCode Desktop Agent',
   version: '1.0.0',
-  architecture: 'x64',
+  architecture: 'x64 (AMD64)',
   targetPlatform: 'Windows 10 / 11 (64-bit)',
   generatedAt: new Date().toISOString(),
-  targetPackage: installerExeName,
+  targetPackage: 'OmniCode-Setup-1.0.0-x64.exe',
   components: [
-    'OmniCode Native Core (NEC VR4300 & MIPS R4600 Decompiler)',
-    'Killer Instinct Arcade to N64 Pipeline Engine',
-    'Autonomous Toolchain Installer (winget / scoop bridge)',
-    'Autonomous ROM & CHD Search Engine',
-    'Gemini AI Reasoning Engine',
-    'Electron Native Windowing Subsystem',
+    'OmniCode Native Windows x64 Launcher (OmniCode.exe)',
+    'Universal Autonomous Coding Agent & Claude Code Alternative',
+    'Multi-Directory Host Workspace & Terminal Integration',
+    'Autonomous Toolchain & Dependency Provisioning (winget / pip / npm)',
+    'Emulation & Decompilation Pipelines (MAME / Ghidra / N64)',
+    'Interactive React / Vite Workstation UI & Embedded Server',
   ],
 };
 
@@ -51,35 +63,51 @@ fs.writeFileSync(
   JSON.stringify(installerManifest, null, 2)
 );
 
-// Generate portable self-installing binary bundle
-const selfExtractingScript = `@echo off
-title Installing OmniCode Native x64 Desktop Agent...
-echo ========================================================
-echo   OmniCode Native Windows x64 Desktop Setup
-echo ========================================================
-echo.
-echo Installing OmniCode to %LOCALAPPDATA%\\Programs\\OmniCode...
-set INSTALL_DIR=%LOCALAPPDATA%\\Programs\\OmniCode
-if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
-xcopy /E /I /Y "%~dp0*.*" "%INSTALL_DIR%" >nul
+// 4. Compile NSIS Setup Executable OmniCode-Setup-1.0.0-x64.exe
+console.log('[2/4] Compiling NSIS Windows Installer (OmniCode-Setup-1.0.0-x64.exe) via makensis...');
+const nsisScript = path.join(rootDir, 'installer.nsi');
+const setupExe = path.join(distInstallerDir, 'OmniCode-Setup-1.0.0-x64.exe');
 
-echo Registering Windows Start Menu & Desktop Shortcuts...
-powershell -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut([System.Environment]::GetFolderPath('Desktop')+'\\OmniCode.lnk'); $s.TargetPath='%INSTALL_DIR%\\OmniCode.exe'; $s.Save()"
+try {
+  execSync(`makensis "${nsisScript}"`, { cwd: rootDir, stdio: 'inherit' });
+  console.log(`[OK] Compiled NSIS Installer: ${setupExe} (${(fs.statSync(setupExe).size / (1024 * 1024)).toFixed(2)} MB)`);
+} catch (err) {
+  console.error('[Error] makensis compilation failed:', err);
+  process.exit(1);
+}
 
-echo.
-echo [OK] OmniCode successfully installed!
-echo Launching OmniCode...
-start "" "%INSTALL_DIR%\\OmniCode.exe"
-`;
+// 5. Create Standalone Portable Zip Archive
+console.log('[3/4] Creating portable distribution zip (OmniCode-v1.0.0-windows-x64.zip)...');
+const zipFile = path.join(distInstallerDir, 'OmniCode-v1.0.0-windows-x64.zip');
+try {
+  const tempZipDir = path.join(rootDir, 'tmp-portable');
+  if (fs.existsSync(tempZipDir)) {
+    fs.rmSync(tempZipDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(tempZipDir, { recursive: true });
 
-fs.writeFileSync(path.join(distInstallerDir, 'install-omnicode.cmd'), selfExtractingScript);
+  // Copy app files
+  fs.copyFileSync(launcherExe, path.join(tempZipDir, 'OmniCode.exe'));
+  fs.copyFileSync(path.join(distInstallerDir, 'run-omnicode.bat'), path.join(tempZipDir, 'run-omnicode.bat'));
+  fs.copyFileSync(path.join(distInstallerDir, 'install-omnicode.cmd'), path.join(tempZipDir, 'install-omnicode.cmd'));
+  fs.copyFileSync(path.join(rootDir, 'package.json'), path.join(tempZipDir, 'package.json'));
+  fs.copyFileSync(path.join(rootDir, 'README.md'), path.join(tempZipDir, 'README.md'));
 
-// Output the installer placeholder file
-const dummyExeHeader = Buffer.from(
-  'MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00\x00\x00\x00This program cannot be run in DOS mode.\r\r\n$'
-);
-fs.writeFileSync(installerPath, dummyExeHeader);
+  // Copy dist
+  execSync(`cp -r "${distDir}" "${path.join(tempZipDir, 'dist')}"`);
 
-console.log(`[Success] Single Windows x64 Installer built at:`);
-console.log(` -> ${installerPath}`);
-console.log(` -> Size: ${fs.statSync(installerPath).size} bytes`);
+  // Zip
+  if (fs.existsSync(zipFile)) {
+    fs.unlinkSync(zipFile);
+  }
+  execSync(`cd "${tempZipDir}" && zip -r "${zipFile}" .`, { stdio: 'pipe' });
+  fs.rmSync(tempZipDir, { recursive: true, force: true });
+  console.log(`[OK] Created Portable Zip: ${zipFile} (${(fs.statSync(zipFile).size / (1024 * 1024)).toFixed(2)} MB)`);
+} catch (err) {
+  console.warn('[Warning] Could not create zip archive:', err.message);
+}
+
+console.log('\n[4/4] All Windows x64 release artifacts ready:');
+console.log(`  -> Installer: ${setupExe}`);
+console.log(`  -> Launcher:  ${launcherExe}`);
+console.log(`  -> Portable:  ${zipFile}`);

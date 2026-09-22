@@ -98,25 +98,33 @@ async function pushAndRelease() {
   console.log(`Release status: ${releaseRes.status} | URL: ${releaseData.html_url || releaseData.message}`);
 
   if (releaseData.upload_url) {
-    console.log('[4/4] Uploading installer asset OmniCode-Setup-1.0.0-x64.exe...');
-    const installerFile = path.join(process.cwd(), 'dist-installer', 'OmniCode-Setup-1.0.0-x64.exe');
-    if (fs.existsSync(installerFile)) {
-      const fileBuffer = fs.readFileSync(installerFile);
-      const cleanUrl = releaseData.upload_url.replace(/\{[^}]+\}/g, '') + '?name=OmniCode-Setup-1.0.0-x64.exe';
-      const uploadRes = await fetch(cleanUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/octet-stream',
-          'User-Agent': 'OmniCode-Publisher',
-          'Content-Length': fileBuffer.length.toString(),
-        },
-        body: fileBuffer,
-      });
-      const uploadData = await uploadRes.json();
-      console.log(`Asset upload status: ${uploadRes.status} | Asset URL: ${uploadData.browser_download_url || uploadData.message}`);
-    } else {
-      console.log(`Notice: ${installerFile} not found for asset upload`);
+    console.log('[4/4] Uploading Windows release assets...');
+    const assetsToUpload = [
+      { name: 'OmniCode-Setup-1.0.0-x64.exe', contentType: 'application/octet-stream' },
+      { name: 'OmniCode.exe', contentType: 'application/octet-stream' },
+      { name: 'OmniCode-v1.0.0-windows-x64.zip', contentType: 'application/zip' },
+    ];
+
+    const cleanUrlBase = releaseData.upload_url.replace(/\{[^}]+\}/g, '');
+    for (const asset of assetsToUpload) {
+      const assetPath = path.join(process.cwd(), 'dist-installer', asset.name);
+      if (fs.existsSync(assetPath)) {
+        const fileBuffer = fs.readFileSync(assetPath);
+        const uploadRes = await fetch(`${cleanUrlBase}?name=${asset.name}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': asset.contentType,
+            'User-Agent': 'OmniCode-Publisher',
+            'Content-Length': fileBuffer.length.toString(),
+          },
+          body: fileBuffer,
+        });
+        const uploadData = await uploadRes.json();
+        console.log(`Uploaded ${asset.name}: status ${uploadRes.status} | URL: ${uploadData.browser_download_url || uploadData.message}`);
+      } else {
+        console.log(`Notice: ${assetPath} not found for asset upload`);
+      }
     }
   }
 

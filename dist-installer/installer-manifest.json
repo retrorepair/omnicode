@@ -1,16 +1,16 @@
 {
   "appName": "OmniCode Desktop Agent",
   "version": "1.0.0",
-  "architecture": "x64",
+  "architecture": "x64 (AMD64)",
   "targetPlatform": "Windows 10 / 11 (64-bit)",
-  "generatedAt": "2026-09-22T12:18:36.719Z",
+  "generatedAt": "2026-09-22T13:51:32.862Z",
   "targetPackage": "OmniCode-Setup-1.0.0-x64.exe",
   "components": [
-    "OmniCode Native Core (NEC VR4300 & MIPS R4600 Decompiler)",
-    "Killer Instinct Arcade to N64 Pipeline Engine",
-    "Autonomous Toolchain Installer (winget / scoop bridge)",
-    "Autonomous ROM & CHD Search Engine",
-    "Gemini AI Reasoning Engine",
-    "Electron Native Windowing Subsystem"
+    "OmniCode Native Windows x64 Launcher (OmniCode.exe)",
+    "Universal Autonomous Coding Agent & Claude Code Alternative",
+    "Multi-Directory Host Workspace & Terminal Integration",
+    "Autonomous Toolchain & Dependency Provisioning (winget / pip / npm)",
+    "Emulation & Decompilation Pipelines (MAME / Ghidra / N64)",
+    "Interactive React / Vite Workstation UI & Embedded Server"
   ]
 }
