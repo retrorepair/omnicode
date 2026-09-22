@@ -115,10 +115,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onOpenAutoSetupModal}
               className="flex items-center gap-1 px-2.5 py-1 rounded bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 text-[11px] font-medium transition-colors cursor-pointer shadow-sm shadow-blue-950"
-              title="Autonomous 1-Click Setup, Tool Installer & ROM Finder"
+              title="Autonomous Workstation & ROM Finder (Auto-downloads and executes tools like Claude)"
             >
               <Zap className="w-3.5 h-3.5 text-blue-400" />
-              <span className="hidden sm:inline">Auto Setup &amp; ROMs</span>
+              <span className="hidden sm:inline">Host &amp; ROMs</span>
             </button>
           )}
 

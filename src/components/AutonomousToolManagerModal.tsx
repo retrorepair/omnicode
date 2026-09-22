@@ -14,7 +14,8 @@ import {
   Zap,
   FolderOpen,
   ArrowRight,
-  HardDrive
+  HardDrive,
+  Sparkles
 } from 'lucide-react';
 
 interface ToolStatus {
@@ -345,14 +346,19 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
               <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-4">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-blue-500/20 text-blue-300">
-                    <Cpu className="h-5 w-5" />
+                    <Sparkles className="h-5 w-5 text-cyan-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-blue-200">
-                      Dynamic Project Dependency Resolver &amp; On-Demand Toolchain
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-blue-200">
+                        Autonomous Toolchain &amp; Execution (Claude Code Permissions Active)
+                      </h3>
+                      <span className="text-[10px] font-mono uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold">
+                        Permission Granted
+                      </span>
+                    </div>
                     <p className="text-xs text-blue-300/80 mt-1">
-                      OmniCode automatically analyzes your current project files (Makefiles, disassembler configs, ROMs, target CPU architecture) and identifies exactly which tools are needed. If any tool is missing from your PC, OmniCode can autonomously download and install it via <code>winget</code> or portable toolchains without manual setup.
+                      Manual installation buttons are <strong>not required</strong>. OmniCode operates with full autonomous permissions to download, install, and execute any missing compilers, disassemblers, and utilities (Splat, MIPS GCC, CHDMAN, Git, Python, MinGW, Ghidra) directly when running your projects, just like Claude Code.
                     </p>
                   </div>
                 </div>
@@ -391,27 +397,21 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                   </div>
 
                   <div className="flex items-center gap-2 pt-2 sm:pt-0">
-                    {projectRequirements.missingTools.length > 0 ? (
-                      <button
-                        onClick={() => handleResolveProjectTools(selectedProjectProfile, true)}
-                        disabled={projectResolveLoading}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs shadow-lg shadow-amber-950 transition-all cursor-pointer"
-                      >
-                        <Download className="h-4 w-4" />
-                        Auto-Install {projectRequirements.missingTools.length} Missing Tools for This Project
-                      </button>
-                    ) : (
-                      <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-medium">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                        All Project Requirements Satisfied
-                      </div>
-                    )}
+                    <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-medium">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                      <span>Autonomous Auto-Install &amp; Execution Enabled</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="text-xs text-slate-400 flex items-center gap-2 border-t border-slate-800/80 pt-3">
-                  <span className="font-semibold text-slate-300">Detected Profile:</span>
-                  <span className="text-blue-300 font-medium">{projectRequirements.projectType}</span>
+                <div className="text-xs text-slate-400 flex items-center justify-between border-t border-slate-800/80 pt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-300">Detected Profile:</span>
+                    <span className="text-blue-300 font-medium">{projectRequirements.projectType}</span>
+                  </div>
+                  <span className="text-[11px] text-slate-400">
+                    Zero user intervention needed • Automatically run on demand
+                  </span>
                 </div>
               </div>
 
@@ -423,7 +423,7 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                     Project-Specific Toolchain Dependencies ({projectRequirements.requiredTools.length})
                   </span>
                   <span className="text-[11px] font-mono text-slate-400">
-                    Missing: {projectRequirements.missingTools.length}
+                    Auto-managed by OmniCode
                   </span>
                 </div>
 
@@ -436,13 +436,14 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-semibold text-slate-200">{req.name}</span>
                             {isMissing ? (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                                Missing from Host
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                                <Sparkles className="h-3 w-3" />
+                                Auto-installs on demand
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                                 <CheckCircle2 className="h-3 w-3" />
-                                Available
+                                Ready on Host
                               </span>
                             )}
                           </div>
@@ -454,22 +455,26 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                           </div>
                         </div>
 
-                        <div>
+                        <div className="flex items-center gap-2">
                           {isMissing ? (
-                            <button
-                              onClick={() => handleInstallTool(req.id)}
-                              disabled={installingId === req.id}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors"
-                            >
-                              {installingId === req.id ? (
-                                <RefreshCw className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Download className="h-3 w-3" />
-                              )}
-                              Auto-Install Tool
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                                Handled autonomously
+                              </span>
+                              <button
+                                onClick={() => handleInstallTool(req.id)}
+                                disabled={installingId === req.id}
+                                className="text-[11px] text-blue-400 hover:text-blue-300 underline font-medium cursor-pointer"
+                                title="Optional: pre-install immediately rather than waiting for next run"
+                              >
+                                {installingId === req.id ? 'Installing...' : 'Pre-warm (optional)'}
+                              </button>
+                            </div>
                           ) : (
-                            <span className="text-xs text-slate-500 font-mono">Ready</span>
+                            <span className="text-xs text-emerald-400 font-mono flex items-center gap-1">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              Ready
+                            </span>
                           )}
                         </div>
                       </div>
@@ -688,15 +693,12 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs text-slate-400">
-                  Native Windows packages managed autonomously through <code>winget</code> and portable zip extraction.
+                  Native Windows packages managed autonomously through <code>winget</code>, pip, and portable extraction. OmniCode automatically provisions and runs any tool needed by your project.
                 </p>
-                <button
-                  onClick={() => handleInstallTool('all')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Auto-Install All Missing
-                </button>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
+                  <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
+                  <span>Auto-provisions on demand</span>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -714,8 +716,9 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                             Installed
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                            Missing
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                            <Sparkles className="h-3 w-3" />
+                            Auto-installs on demand
                           </span>
                         )}
                       </div>
@@ -728,18 +731,17 @@ export const AutonomousToolManagerModal: React.FC<AutonomousToolManagerModalProp
                       {tool.status === 'installed' ? (
                         <span className="text-[11px] font-mono text-slate-500">{tool.version}</span>
                       ) : (
-                        <button
-                          onClick={() => handleInstallTool(tool.id)}
-                          disabled={installingId === tool.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/90 hover:bg-blue-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
-                        >
-                          {installingId === tool.id ? (
-                            <RefreshCw className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Download className="h-3 w-3" />
-                          )}
-                          Install
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">Handled</span>
+                          <button
+                            onClick={() => handleInstallTool(tool.id)}
+                            disabled={installingId === tool.id}
+                            className="text-[11px] text-blue-400 hover:text-blue-300 underline font-medium cursor-pointer"
+                            title="Optional: pre-install immediately"
+                          >
+                            {installingId === tool.id ? 'Installing...' : 'Pre-warm'}
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
