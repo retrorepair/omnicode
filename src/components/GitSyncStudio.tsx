@@ -9,17 +9,20 @@ import {
   RefreshCw,
   Plus,
   Sparkles,
+  Package,
 } from 'lucide-react';
 import { WorkspaceFile } from '../types';
 
 interface GitSyncStudioProps {
   files: WorkspaceFile[];
   onExecuteCommand: (command: string) => Promise<any>;
+  onOpenGitHubReleaseModal?: () => void;
 }
 
 export const GitSyncStudio: React.FC<GitSyncStudioProps> = ({
   files,
   onExecuteCommand,
+  onOpenGitHubReleaseModal,
 }) => {
   const [currentBranch, setCurrentBranch] = useState('main');
   const [commitMessage, setCommitMessage] = useState(
@@ -88,23 +91,36 @@ export const GitSyncStudio: React.FC<GitSyncStudioProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={handleCommitAndPush}
-          disabled={isPushing}
-          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded font-medium flex items-center gap-1.5 shadow-sm transition-colors"
-        >
-          {isPushing ? (
-            <>
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              <span>Pushing to GitHub...</span>
-            </>
-          ) : (
-            <>
-              <UploadCloud className="w-3.5 h-3.5" />
-              <span>Commit & Push to GitHub</span>
-            </>
+        <div className="flex items-center gap-2">
+          {onOpenGitHubReleaseModal && (
+            <button
+              onClick={onOpenGitHubReleaseModal}
+              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-medium flex items-center gap-1.5 shadow-sm transition-colors text-xs"
+              title="Publish repository to retrorepair and release installer"
+            >
+              <Package className="w-3.5 h-3.5 text-purple-400" />
+              <span>Publish Release to retrorepair</span>
+            </button>
           )}
-        </button>
+
+          <button
+            onClick={handleCommitAndPush}
+            disabled={isPushing}
+            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded font-medium flex items-center gap-1.5 shadow-sm transition-colors"
+          >
+            {isPushing ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Pushing to GitHub...</span>
+              </>
+            ) : (
+              <>
+                <UploadCloud className="w-3.5 h-3.5" />
+                <span>Commit & Push to GitHub</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 flex overflow-hidden">

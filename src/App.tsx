@@ -16,6 +16,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { WindowsAppModal } from './components/WindowsAppModal';
 import { KiDecompStudio } from './components/KiDecompStudio';
 import { AutonomousToolManagerModal } from './components/AutonomousToolManagerModal';
+import { GitHubPublishModal } from './components/GitHubPublishModal';
 import { DEFAULT_TOOLCHAINS } from './data/presets';
 import {
   WorkspaceFile,
@@ -84,6 +85,7 @@ export default function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isWindowsAppModalOpen, setIsWindowsAppModalOpen] = useState(false);
   const [isAutoSetupModalOpen, setIsAutoSetupModalOpen] = useState(false);
+  const [isGitHubModalOpen, setIsGitHubModalOpen] = useState(false);
   const [isCompanionConnected, setIsCompanionConnected] = useState(false);
 
   // Gemini Auth Status state
@@ -365,6 +367,7 @@ export default function App() {
         onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         onOpenGeminiAuthModal={() => setIsGeminiAuthModalOpen(true)}
         onOpenAutoSetupModal={() => setIsAutoSetupModalOpen(true)}
+        onOpenGitHubModal={() => setIsGitHubModalOpen(true)}
         authStatus={authStatus}
       />
 
@@ -438,6 +441,7 @@ export default function App() {
             <GitSyncStudio
               files={files}
               onExecuteCommand={handleExecuteCommand}
+              onOpenGitHubReleaseModal={() => setIsGitHubModalOpen(true)}
             />
           )}
 
@@ -528,6 +532,12 @@ export default function App() {
         onClose={() => setIsAutoSetupModalOpen(false)}
         onMountDirectory={handleMountDirectoryFromPath}
         onSetChdPath={(chdPath) => setSettings((prev) => ({ ...prev, chdPath }))}
+      />
+
+      {/* GitHub Project & Release Publisher Modal */}
+      <GitHubPublishModal
+        isOpen={isGitHubModalOpen}
+        onClose={() => setIsGitHubModalOpen(false)}
       />
     </div>
   );
